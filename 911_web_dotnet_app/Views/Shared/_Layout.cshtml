@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - 911 Application</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.5/angular.min.js"></script>
+
+    <script>
+        angular.module('myApp', [])
+            .controller('EmsController', function ($scope, $http,$location) {
+                if (localStorage.getItem("active") == "true") {
+                    $scope.active = true;
+                }
+                else {
+                    $scope.active = false;
+                }
+                console.log(window.location.pathname);
+
+                if (($scope.active == false) && (window.location.pathname != "/Ems") && (localStorage.getItem("active") != "true")) {
+                    alert("Access denied.....Please Log in");
+                    window.location.href = "/Ems";
+                }
+              
+               
+                $scope.type = "";
+                $scope.URI = "";
+                $scope.showGraphs = false;
+                $scope.showHome = false;
+                $scope.login = function () {
+                    $scope.active = true;
+                    localStorage.setItem("active",true);
+                    if ($scope.userId == "Admin" && $scope.password == "password") {
+                        $scope.showHome = true;
+                        window.location.href = "/Ems/Dashboard";
+                    }
+                    else {
+                        alert("Invalid credentials!!!");
+                    }
+                }
+
+                $scope.logout = function () {
+                    $scope.active = false;
+                    $scope.showHome = false;
+                    localStorage.setItem("active", false);
+                    window.location.href = "/Ems/Dashboard";
+                    alert("Log Out Successful!!!");
+
+
+                }
+                $scope.redirect = function () {
+                    window.location.href = '/ems/EmployeeCalculator';
+                }
+                $scope.showResult = false;
+                $scope.close = function () {
+                    $scope.showResult = false;
+                }
+                $scope.Calculate = function () {
+                    $scope.showResult = true;
+                    $scope.RequiredEms = $scope.Ems * 3;
+                    $scope.RequiredFire = $scope.Fire * 6;
+                    $scope.RequiredTraffic = $scope.Traffic*5;
+
+                }
+
+
+                $scope.getUri = function () {
+                    if ($scope.type) {
+                        console.log($scope.type);
+                        $http.get("GetUri?type=" + $scope.type).then(function (response) {
+                            console.log(response.data);
+                            $scope.URI = response.data;
+                            $scope.showGraphs = true;
+                            if (response.data == "Not Found") {
+                                alert("Page Not Found !!!!");
+
+                            }
+                            else {
+                                window.location.href = `/Ems/${response.data}`;
+                            }
+
+
+                        })
+                    }
+                    else {
+                        alert("Select option from Dropdown list");
+                    }
+                }
+            })
+
+    </script>
+  
+
+</head>
+<body ng-app="myApp" ng-controller="EmsController">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("911 Application", "Index", "Ems", null, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li ng-if="active">@Html.ActionLink("Home", "Dashboard", "Ems")</li>
+                    <li>@Html.ActionLink("About", "About", "Home")</li>
+                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+
+                    @if (Request.IsAuthenticated && User.IsInRole("Admin")) {
+                        <li>@Html.ActionLink("RolesAdmin", "Index", "RolesAdmin")</li>
+                        <li>@Html.ActionLink("UsersAdmin", "Index", "UsersAdmin")</li>
+                    }
+                </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - 911 Application</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
