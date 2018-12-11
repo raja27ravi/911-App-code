@@ -37,5 +37,6 @@ we can use 911_nan_zip_dataset.csv for our data learning model.
 
 for using pysparksql we have to import sparksession
 
+The machine learning part of this application was inspired and ideas were taken from 
 
-
+https://github.com/lukaszkm/machinelearningexp/blob/master/Machine_Learning_Regression_911Calls.ipynb
